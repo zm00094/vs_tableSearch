@@ -70,10 +70,12 @@ tr:hover td { background-color: #edf8b1; }
 </style>
 <body>
 <script src="https://d3js.org/d3.v3.js"></script>
+<script src='data/drg.js'></script>
 <script src='data/hcpcs.js'></script>
 <script>
 
 data=hcpcs.data
+// data=drg.data
 var searchColumn='SHORT DESCRIPTION'
 var idColumn='HCPCS'
 var column_names=Object.keys(data[0])
