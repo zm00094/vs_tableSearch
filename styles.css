@@ -1,0 +1,61 @@
+body {
+    background-color: #d1e5f0;
+    font: 14px sans-serif;
+  }
+
+  .SearchBar { 
+    display: inline; 
+    position: relative;
+    left: 1%;
+  }
+  
+  .SearchBar input {
+    position: relative;
+    left: 2%;
+  }
+  
+  table { 
+    border-collapse: collapse;
+  }
+  
+  table a:link, a:visited { text-decoration: none; }
+  
+  table a:hover, a:active { text-decoration: underline; }
+  
+  table, th, td { border: 1px solid black; }
+  
+  td, th {
+    padding: 5px;
+    text-align: center;
+    height: 20px;
+  }
+  
+  th {
+    background-color: #4393c3;
+    color: #d9f0a3;
+  }
+  
+  td { background-color: #92c5de; }
+  
+  tr:hover td { background-color: #edf8b1; }
+
+div.searchTable {
+  vertical-align:top;
+}
+div.patientTable{
+  vertical-align:top;
+}
+
+div.leftHalf {
+    widows: 70%;
+    float:left;
+    vertical-align:top;
+}
+div.rightHalf {
+    margin-left:25%
+    vertical-align:top;
+}
+
+div.framework {
+    width:500px;
+}

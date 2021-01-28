@@ -1,105 +1,44 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
-body {
-  background-color: #d1e5f0;
-  font: 14px sans-serif;
-}
-
-#container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-#title {
-  font: 26px sans-serif;
-  position: absolute;
-  top: -40px;
-  left: 450px;
-}
-
-#FilterableTable {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 40px;
-  left: 20px;
-}
-
-.SearchBar { 
-  display: inline; 
-  position: relative;
-  left: 1%;
-}
-
-.SearchBar input {
-  position: relative;
-  left: 2%;
-}
-
-table { 
-  position: absolute;
-  top: 40px;
-  left: 20px;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-table a:link, a:visited { text-decoration: none; }
-
-table a:hover, a:active { text-decoration: underline; }
-
-table, th, td { border: 1px solid black; }
-
-td, th {
-  padding: 5px;
-  text-align: center;
-  height: 20px;
-}
-
-th {
-  background-color: #4393c3;
-  color: #d9f0a3;
-}
-
-td { background-color: #92c5de; }
-
-tr:hover td { background-color: #edf8b1; }
-
-</style>
-<body>
 <script src="https://d3js.org/d3.v3.js"></script>
+<script src="localTools.js"></script>
 <script src='data/drg.js'></script>
 <script src='data/hcpcs.js'></script>
+<link rel="stylesheet" href="styles.css">
+<body>
+  <div id="framework" style="display:table">
+    <div style="display:table-row;">
+      <div style="width:70%; display:table-cell;" class="leftHalf">
+        <div ><h1 id="searchTableTitle"></h1></div>
+        <div class="tab">
+          <button class="tablink" onclick="j_lt.selectTab('hcpcs')" id="defaultPage">HCPCS Procedures</button>
+          <button class="tablink" onclick="j_lt.selectTab('drg')">Hospitalizations</button>
+        </div>
+        <div id="searchForm"></div>
+      </div>
+      <div style="width:30%; display:table-cell;padding-left:40px;" class="rightHalf">
+        <div ><h1 id="patientID">Patient ID: XXX</h1></div>
+        <div id="sexForm"></div>
+        <div id="ageForm"></div>
+      </div>
+    </div>
+    <div style="display:table-row">
+      <div style="display:table-cell" class="leftHalf">
+        <div id="searchTable"></div>
+      </div>
+      <div style="display:table-cell;vertical-align:top;padding-left:40px;" class="rightHalf">
+        <div id="patientTable"></div>
+      </div>
+    </div>
+  </div>
+</body>
 <script>
 
-data=hcpcs.data
-// data=drg.data
-var searchColumn='SHORT DESCRIPTION'
-var idColumn='HCPCS'
-var column_names=Object.keys(data[0])
-var clicks={}
-for(var i=0; i<column_names.length; i++){
-    clicks[column_names[i]]=0
-}
-
-// draw the table
-d3.select("body").append("div")
-  .attr("id", "container")
-
-d3.select("#container").append("div")
-  .attr("id", "FilterableTable");
-
-d3.select("#FilterableTable").append("h1")
-  .attr("id", "title")
-  .text("HCPCS Codes")
-
-d3.select("#FilterableTable").append("div")
+d3.select("#searchForm").append("div")
   .attr("class", "SearchBar")
   .append("p")
     .attr("class", "SearchBar")
-    .text("Search By Short Description:");
+    .text("Search:");
 
 d3.select(".SearchBar")
   .append("input")
@@ -108,33 +47,30 @@ d3.select(".SearchBar")
     .attr("type", "text")
     .attr("placeholder", "Search...");
   
-var table = d3.select("#FilterableTable").append("table");
-var tableHead=table.append("thead").append("tr").selectAll('th').data(column_names)
-  .enter().append("th").text(function(d){return d})
+dl={'hcpcs':{'header':'HCPCS Codes','data':hcpcs.data,'searchColumn':'SHORT DESCRIPTION'}
+  ,'drg':{'header':'Hospitalizations','data':drg.data,'searchColumn':'Description'}}
+var currentTable='drg'
+var currentPatient='XXXX'
 
-var rows;
+var table = d3.select("#searchTable").append("table");
+table.append("thead").append('tr').append('th')
+table.append('tbody').append('tr').append('td')
 
-table.append("tbody")
+j_lt.selectTab(currentTable)
 
-//function to fill the rows with data set that is passed
-var popRows=function(dat){
-  r=table.select('tbody').selectAll("tr")
-    .data(dat).enter().append('tr')
-
-  r.selectAll("td")
-    .data(d=>Object.values(d)).enter().append("td")
-    .text(d=>d)
-
-  return r;
-}
-
-rows=popRows(data)
+var ptab = d3.select("#patientTable").append("table");
+var ptArray=[]
+ptab.append('thead').append('tr').selectAll('th').data(['Path','Type','Code'])
+        .enter().append("th").text(function(d){return d})
+ptab.append('tbody')
+// ptab.append('tbody').selectAll("tr")
+//         .data(emptyPt).enter().append('tr').append('tr').append('td')
 
 // search
 d3.select("#search")
   .on("keyup", function() { // filter according to key pressed 
-    rows.remove()
-    rows=popRows(data.filter(d=>RegExp(this.value.trim(),'i').test(d[searchColumn])))
+    table.select('tbody').selectAll("tr").remove()
+    j_lt.popRows(dl[currentTable].data.filter(d=>RegExp(this.value.trim(),'i').test(d[dl[currentTable].searchColumn])))
   })
 
 d3.select(self.frameElement).style("height", "780px").style("width", "1150px");	
