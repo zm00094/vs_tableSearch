@@ -7,6 +7,7 @@
 var version="0.0.1"
 
 var popRows=function(dat){
+    dat=dat.slice(0,100)
     var r=table.select('tbody').selectAll("tr")
         .data(dat).enter().append('tr')
 

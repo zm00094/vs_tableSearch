@@ -3,16 +3,22 @@
 <script src="https://d3js.org/d3.v3.js"></script>
 <script src="localTools.js"></script>
 <script src='data/drg.js'></script>
-<script src='data/hcpcs.js'></script>
+<script src='data/proc.js'></script>
+<script src='data/dx.js'></script>
+<script src='data/inpProc.js'></script>
+<script src='data/med.js'></script>
 <link rel="stylesheet" href="styles.css">
 <body>
   <div id="framework" style="display:table">
     <div style="display:table-row;">
       <div style="width:70%; display:table-cell;" class="leftHalf">
         <div ><h1 id="searchTableTitle"></h1></div>
-        <div class="tab">
-          <button class="tablink" onclick="j_lt.selectTab('hcpcs')" id="defaultPage">HCPCS Procedures</button>
+        <div class="tab" id='dataSourceSelect'>
+          <button class="tablink" onclick="j_lt.selectTab('proc')" id="defaultPage">Procedures</button>
           <button class="tablink" onclick="j_lt.selectTab('drg')">Hospitalizations</button>
+          <button class="tablink" onclick="j_lt.selectTab('dx')">Diagnoses</button>
+          <button class="tablink" onclick="j_lt.selectTab('inpProc')">Inpatient Proc</button>
+          <button class="tablink" onclick="j_lt.selectTab('med')">Medications</button>
         </div>
         <div id="searchForm"></div>
       </div>
@@ -47,8 +53,13 @@ d3.select(".SearchBar")
     .attr("type", "text")
     .attr("placeholder", "Search...");
   
-dl={'hcpcs':{'header':'HCPCS Codes','data':hcpcs.data,'searchColumn':'SHORT DESCRIPTION'}
-  ,'drg':{'header':'Hospitalizations','data':drg.data,'searchColumn':'Description'}}
+dl={'proc':{'header':'Procedures','data':proc.data,'searchColumn':'Description'}
+  ,'drg':{'header':'Hospitalizations','data':drg.data,'searchColumn':'Description'}
+  , 'dx':{'header':'Diagnoses','data':dx.data,'searchColumn':'Description'}
+  , 'inpProc':{'header':'Inpatient Procedures','data':inpProc.data,'searchColumn':'Description'}
+  , 'med':{'header':'Medications','data':med.data,'searchColumn':'Description'}}
+
+//  d3.select('#dataSourceSelect').append('button').text('Inpatient Proc').on('click',j_lt.selectTab('inpProc'))
 var currentTable='drg'
 var currentPatient='XXXX'
 
@@ -68,9 +79,12 @@ ptab.append('tbody')
 
 // search
 d3.select("#search")
-  .on("keyup", function() { // filter according to key pressed 
+  .on("keyup", function() { // filter according to key pressed
+    ss=this.value.trim()
+    if(ss.includes('&')) { ss='(?=.*'+ss.split('&').map(x=>x.trim()).join(')(?=.*')+')'}
+    // (?=.*diabetes)(?=.*type 2)(?=.*with) 
     table.select('tbody').selectAll("tr").remove()
-    j_lt.popRows(dl[currentTable].data.filter(d=>RegExp(this.value.trim(),'i').test(d[dl[currentTable].searchColumn])))
+    j_lt.popRows(dl[currentTable].data.filter(d=>RegExp(ss,'i').test(d[dl[currentTable].searchColumn])))
   })
 
 d3.select(self.frameElement).style("height", "780px").style("width", "1150px");	
